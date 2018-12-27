@@ -16,6 +16,7 @@ import { createTypeormConn } from "./createTypeormConn";
 import { UserResolver } from "./modules/user/UserResolver";
 import { User } from "./entity/User";
 import { redis } from "./redis";
+import { createUser } from "./utils/createUser";
 
 // process.env.NODE_ENV = "development";
 
@@ -49,7 +50,7 @@ const startServer = async () => {
 
   app.use((req, _, next) => {
     const authorization = req.headers.authorization;
-    
+
     if (authorization) {
       try {
         const qid = authorization.split(" ")[1];
@@ -89,12 +90,22 @@ const startServer = async () => {
         console.log(profile);
         let user = await User.findOne({ where: { githubId: profile.id } });
         if (!user) {
-          user = await User.create({
+          user = await createUser({
+            username: profile.username,
+            githubId: profile.id,
+            pictureUrl: profile._json.avatar_url,
+            bio: profile._json.bio,
+            name: profile._json.name
+          });
+
+          /*= await User.create({
+            username: profile.username,
             githubId: profile.id,
             // pictureUrl: profile.photos![0].value,
             pictureUrl: profile._json.avatar_url,
-            bio: profile._json.bio
-          }).save();
+            bio: profile._json.bio,
+            name: profile._json.name
+          }).save();*/
         }
 
         cb(null, {
