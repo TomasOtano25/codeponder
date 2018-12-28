@@ -26,4 +26,7 @@ export class User extends BaseEntity {
   @Field({ nullable: true })
   @Column({ type: "text", nullable: true })
   bio?: string;
+
+  @Field(() => String)
+  accessToken: string;
 }

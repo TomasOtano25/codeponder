@@ -126,12 +126,13 @@ const startServer = async () => {
     "/oauth/github",
     passport.authenticate("github", { session: false }),
     (req: any, res) => {
-      console.log(req.user);
       // Successful authentication, redirect home.
-      req.session.userId = req.user.user.id;
-      req.session.accessToken = req.user.accessToken;
-      req.session.refreshToken = req.user.refreshToken;
-      res.redirect("http://localhost:3000");
+      if (req.user.user.id) {
+        req.session.userId = req.user.user.id;
+        req.session.accessToken = req.user.accessToken;
+        req.session.refreshToken = req.user.refreshToken;
+      }
+      res.redirect("http://localhost:3000/pick-repo");
     }
   );
 

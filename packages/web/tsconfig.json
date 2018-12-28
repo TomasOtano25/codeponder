@@ -16,7 +16,10 @@
     "sourceMap": true,
     "composite": true,
     "strict": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "resolveJsonModule": true
   },
   "references": [{ "path": "../common" }, { "path": "../ui" }]
+  // "include": ["**/*.ts", "**/*.tsx"],
+  // "exclude": ["node_modules", "next.config.js"]
 }

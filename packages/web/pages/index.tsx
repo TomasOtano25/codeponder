@@ -1,26 +1,12 @@
 import * as React from "react";
-import { NextContextWithApollo } from "../types/NextContextWithApollo";
-import gql from "graphql-tag";
+import { Button } from "@codeponder/ui";
 
-export default class Index extends React.PureComponent {
-  static async getInitialProps({ apolloClient }: NextContextWithApollo) {
-    const response = await apolloClient.query({
-      query: gql`
-        {
-          me {
-            id
-            username
-            pictureUrl
-            bio
-          }
-        }
-      `
-    });
-    console.log(response);
-    return {};
-  }
-
+export default class Index extends React.Component {
   render() {
-    return null;
+    return (
+      <a href="http://localhost:4000/auth/github">
+        <Button>login with github</Button>
+      </a>
+    );
   }
 }
