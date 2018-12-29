@@ -1,13 +1,17 @@
 import * as React from "react";
 
 import { storiesOf } from "@storybook/react";
-// import { action } from '@storybook/addon-actions';
+import { action } from "@storybook/addon-actions";
 // import { linkTo } from '@storybook/addon-links';
 
 // import { Welcome } from '@storybook/react/demo';
 import { Button } from "./index";
 
-storiesOf("Button", module).add("with text", () => <Button>Hello</Button>);
+storiesOf("Button", module).add("basic example", () => (
+  <Button variant="primary" onClick={action("primary-button-click")}>
+    New code review
+  </Button>
+));
 
 // storiesOf('Button', module)
 //   .add('with text', () => <Button onClick={action('clicked')}>Hello Button</Button>)
