@@ -101,14 +101,13 @@ export default (App: any) => {
       }
 
       const apolloState = apollo.cache.extract();
-      const githubApolloState = apollo.cache.extract();
+      const githubApolloState = githubApolloClient.cache.extract();
 
       return { ...appProps, me, apolloState, githubApolloState };
     }
 
     apolloClient: ApolloClient<NormalizedCacheObject>;
     githubApolloClient: ApolloClient<NormalizedCacheObject>;
-    // apolloGitHubClient: ApolloClient<NormalizedCacheObject>;
 
     constructor(props: any) {
       super(props);
