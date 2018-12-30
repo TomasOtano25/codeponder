@@ -4,9 +4,27 @@ import Head from "next/head";
 import PropTypes from "prop-types";
 import { getDataFromTree } from "react-apollo";
 import { ApolloClient, NormalizedCacheObject } from "apollo-boost";
+import { IntrospectionFragmentMatcher } from "apollo-cache-inmemory";
 
 import initApollo from "./init-apollo";
 import { isBrowser } from "./isBrowser";
+import { MeQuery } from "../components/apollo-components";
+import { meQuery } from "../graphql/user/query/me";
+import introspectionQueryResultData from "./github-api-fragments.json";
+
+const fragmentMatcher = new IntrospectionFragmentMatcher({
+  introspectionQueryResultData: introspectionQueryResultData as any
+});
+
+const SERVER_LINK_OPTIONS = {
+  uri: "http://localhost:4000/graphql",
+  credentials: "include"
+};
+const GITHUB_LINK_OPTIONS = { uri: "https://api.github.com/graphql" };
+
+// export let githubApolloClient:
+//   | ApolloClient<NormalizedCacheObject>
+//   | undefined = undefined;
 
 function parseCookies(req?: any, options = {}) {
   return Cookie.parse(
@@ -18,7 +36,10 @@ function parseCookies(req?: any, options = {}) {
 export default (App: any) => {
   return class WithData extends React.Component {
     static displayName = `WithData(${App.displayName})`;
-    static propTypes = { apolloState: PropTypes.object.isRequired };
+    static propTypes = {
+      apolloState: PropTypes.object.isRequired,
+      githubApolloState: PropTypes.object.isRequired
+    };
 
     static async getInitialProps(ctx: any) {
       const {
@@ -26,9 +47,31 @@ export default (App: any) => {
         router,
         ctx: { req, res }
       } = ctx;
-      const apollo = initApollo({}, { getToken: () => parseCookies(req).qid });
+      const apollo = initApollo(
+        SERVER_LINK_OPTIONS,
+        {},
+        { getToken: () => parseCookies(req).qid }
+      );
+
+      const {
+        data: { me }
+      } = await apollo.query<MeQuery>({
+        query: meQuery
+      });
+
+      const githubApolloClient = initApollo(
+        GITHUB_LINK_OPTIONS,
+        {},
+        {
+          getToken: () => {
+            return me ? me.accessToken : "";
+          }
+        },
+        { fragmentMatcher }
+      );
 
       ctx.ctx.apolloClient = apollo;
+      ctx.ctx.githubApolloClient = githubApolloClient;
 
       let appProps = {};
       if (App.getInitialProps) {
@@ -47,6 +90,7 @@ export default (App: any) => {
               Component={Component}
               router={router}
               apolloClient={apollo}
+              githubApolloClient={githubApolloClient}
             />
           );
         } catch (error) {
@@ -57,24 +101,44 @@ export default (App: any) => {
       }
 
       const apolloState = apollo.cache.extract();
+      const githubApolloState = apollo.cache.extract();
 
-      return { ...appProps, apolloState };
+      return { ...appProps, me, apolloState, githubApolloState };
     }
 
     apolloClient: ApolloClient<NormalizedCacheObject>;
+    githubApolloClient: ApolloClient<NormalizedCacheObject>;
+    // apolloGitHubClient: ApolloClient<NormalizedCacheObject>;
 
     constructor(props: any) {
       super(props);
 
-      this.apolloClient = initApollo(props.apolloState, {
+      this.apolloClient = initApollo(SERVER_LINK_OPTIONS, props.apolloState, {
         getToken: () => {
           return parseCookies().qid;
         }
       });
+
+      this.githubApolloClient = initApollo(
+        GITHUB_LINK_OPTIONS,
+        props.githubApolloState,
+        {
+          getToken: () => {
+            return props.me ? props.me.accessToken : "";
+          }
+        },
+        { fragmentMatcher }
+      );
     }
 
     render() {
-      return <App {...this.props} apolloClient={this.apolloClient} />;
+      return (
+        <App
+          {...this.props}
+          apolloClient={this.apolloClient}
+          githubApolloClient={this.githubApolloClient}
+        />
+      );
     }
   };
 };

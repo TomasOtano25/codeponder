@@ -13,6 +13,7 @@ app.prepare().then(() => {
   createServer((req, res) => {
     const parsedUrl = parse(req.url!, true);
 
+    //@ts-ignore
     handle(req, res, parsedUrl);
   }).listen(port, (err: any) => {
     if (err) throw err;
