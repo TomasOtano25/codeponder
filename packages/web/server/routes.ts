@@ -7,8 +7,8 @@ export const Link = routes.Link;
 
 //buscar el linea y arreglar
 // routes.add("repo", "/:owner/:repo");
-routes.add("repo", "/:owner/:repo/:branch/:path*");
-routes.add("default-repo", "/:owner/:repo", "repo");
+routes.add("repo", "/:owner/:name/:branch/:path*");
+routes.add("default-repo", "/:owner/:name", "repo");
 
 // routes.add('blog', '/blog/:slug')
 // routes.add('about', '/about-us/:foo(bar|baz)')

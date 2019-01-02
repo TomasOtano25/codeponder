@@ -8,7 +8,8 @@ import { NextContextWithApollo } from "../types/NextContextWithApollo";
 // import { meQuery } from "../graphql/user/query/me";
 import {
   GetRepoObjectComponent,
-  GetRepoObjectTreeInlineFragment
+  GetRepoObjectTreeInlineFragment,
+  GetRepoObjectDocument
 } from "../components/github-apollo-components";
 // import { ApolloClient, NormalizedCacheObject } from "apollo-boost";
 import { GitHubApolloClientContext } from "../components/GithubApolloClientContext";
@@ -16,35 +17,59 @@ import { FolderTree } from "@codeponder/ui";
 import { Link } from "../server/routes";
 
 interface Props {
-  query: {
-    branch?: string;
-    owner: string;
-    path?: string;
-    repo: string;
-  };
+  // query: {
+  branch?: string;
+  owner: string;
+  path?: string;
+  name: string;
+  expression: string;
+  // };
 }
 
 export default class Repo extends React.PureComponent<Props> {
   static contextType = GitHubApolloClientContext;
 
-  static async getInitialProps({ query }: NextContextWithApollo) {
-    console.log(query);
+  static async getInitialProps({
+    query: { branch, owner, path, name },
+    githubApolloClient
+  }: NextContextWithApollo) {
+    // console.log(query);
+    const expression = `${branch || "master"}:${path || ""}`;
+
+    const repository = await githubApolloClient.query({
+      query: GetRepoObjectDocument,
+      variables: {
+        name,
+        owner,
+        expression
+      }
+    });
+
+    console.log(repository.data);
+
     return {
-      query
+      branch,
+      owner,
+      path,
+      name,
+      expression
     };
   }
 
   render() {
     // console.log(this.context);
-    const {
-      query: { branch, owner, repo, path }
-    } = this.props;
+    // const {
+    //   query: { branch, owner, repo, path }
+    // } = this.props;
 
-    const expression = `${branch || "master"}:${path || ""}`;
+    // const expression = `${branch || "master"}:${path || ""}`;
+    const { branch, owner, path, name, expression } = this.props;
+
     return (
       <GetRepoObjectComponent
         variables={{
-          name: repo,
+          // name: repo,
+          name,
           expression, //"master:packages/server",
           owner
         }}
@@ -52,6 +77,7 @@ export default class Repo extends React.PureComponent<Props> {
       >
         {({ data, loading }) => {
           if (!data || loading) {
+            console.log("render null");
             return null;
           }
 
@@ -87,7 +113,7 @@ export default class Repo extends React.PureComponent<Props> {
                       ...(path ? path.split("/") : []),
                       ...itemPath.split("/")
                     ] as any,
-                    repo
+                    name
                   }
                 })}
                 // onItemPress={itemPath => {
