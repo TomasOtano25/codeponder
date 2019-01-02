@@ -1035,7 +1035,7 @@ export type GetRepoObjectObject =
 export type GetRepoObjectBlobInlineFragment = {
   __typename?: "Blob";
 
-  oid: GitObjectId;
+  text: string | null;
 };
 
 export type GetRepoObjectTreeInlineFragment = {
@@ -1067,7 +1067,7 @@ export const GetRepoObjectDocument = gql`
       object(expression: $expression) {
         __typename
         ... on Blob {
-          oid
+          text
         }
         ... on Tree {
           entries {
