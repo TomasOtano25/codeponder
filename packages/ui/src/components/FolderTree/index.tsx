@@ -5,15 +5,15 @@ import FileIcon from "@material-ui/icons/InsertDriveFileOutlined";
 import { background } from "styled-system";
 
 interface TreeItem {
-  path: string;
+  name: string;
   type: string;
-  //   size: string;
-  url: string;
 }
 
 interface Props {
   items: TreeItem[];
-  onItemPress: (path: string) => void;
+  // onItemPress: (path: string) => void;
+  Link: any;
+  getLinkProps: (path: string) => any;
 }
 
 const Container = styled.div`
@@ -41,7 +41,7 @@ const Item: any = styled.div`
     box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
     z-index: 1;
   }
-  
+
 `;
 
 const A = styled.a`
@@ -72,22 +72,29 @@ const iconProps = {
 
 export const FolderTree: React.FunctionComponent<Props> = ({
   items,
-  onItemPress
+  // onItemPress,
+  Link,
+  getLinkProps
 }) => (
   <Container>
     {items.map((item, idx) => {
       return (
-        <Item key={idx} background={idx % 2 === 0 ? "#ffffff" : "#f3faff"}>
-          <A
+        <Item
+          key={`${item.name}-${idx}`}
+          background={idx % 2 === 0 ? "#ffffff" : "#f3faff"}
+        >
+          <Link {...getLinkProps(item.name)}>
+            <A
             // href="#"
-            onClick={() => onItemPress(item.path)}
-          >
-            <div>
-              {item.type === "tree" && <FolderIcon {...iconProps} />}
-              {item.type === "blob" && <FileIcon {...iconProps} />}
-            </div>
-            <div style={{ paddingLeft: 10 }}>{item.path}</div>
-          </A>
+            // onClick={() => onItemPress(item.name)}
+            >
+              <div>
+                {item.type === "tree" && <FolderIcon {...iconProps} />}
+                {item.type === "blob" && <FileIcon {...iconProps} />}
+              </div>
+              <div style={{ paddingLeft: 10 }}>{item.name}</div>
+            </A>
+          </Link>
         </Item>
       );
     })}

@@ -1,91 +1,114 @@
 import * as React from "react";
 // import { FolderTree } from "@codeponder/ui";
-import { GitCreateTreeResponseTreeItem } from "@octokit/rest";
+// import { GitCreateTreeResponseTreeItem } from "@octokit/rest";
 
 import { NextContextWithApollo } from "../types/NextContextWithApollo";
-import { octokit } from "../lib/octo";
-import { MeQuery } from "../components/apollo-components";
-import { meQuery } from "../graphql/user/query/me";
-import { GetRepoObjectComponent } from "../components/github-apollo-components";
-import { ApolloClient, NormalizedCacheObject } from "apollo-boost";
+// import { octokit } from "../lib/octo";
+// import { MeQuery } from "../components/apollo-components";
+// import { meQuery } from "../graphql/user/query/me";
+import {
+  GetRepoObjectComponent,
+  GetRepoObjectTreeInlineFragment
+} from "../components/github-apollo-components";
+// import { ApolloClient, NormalizedCacheObject } from "apollo-boost";
 import { GitHubApolloClientContext } from "../components/GithubApolloClientContext";
+import { FolderTree } from "@codeponder/ui";
+import { Link } from "../server/routes";
 
 interface Props {
-  repo: any;
-  fileTree: GitCreateTreeResponseTreeItem[];
-  githubApolloClient: ApolloClient<NormalizedCacheObject>;
+  query: {
+    branch?: string;
+    owner: string;
+    path?: string;
+    repo: string;
+  };
 }
 
 export default class Repo extends React.PureComponent<Props> {
   static contextType = GitHubApolloClientContext;
 
-  static async getInitialProps({
-    apolloClient,
-    query,
-    res,
-    ...ctx
-  }: NextContextWithApollo) {
-    const {
-      data: { me }
-    } = await apolloClient.query<MeQuery>({
-      query: meQuery
-    });
-
-    octokit.authenticate({
-      type: "oauth",
-      token: me!.accessToken
-    });
-
-    // const response = await octokit.repos.get(query as any);
-    const fileTree = await octokit.git.getTree({
-      ...(query as any),
-      tree_sha: "master"
-      // recursive: 1
-    });
-
-    // const fileTreeSorted = await fileTree.data.tree.sort((a: any, b: any) => {
-    //   if (a.type === "tree") {
-    //     return -1;
-    //   }
-    //   if (a.type === "blob") {
-    //     return 1;
-    //   }
-    //   return 0;
-    // });
-
-    // console.log(response.data);
+  static async getInitialProps({ query }: NextContextWithApollo) {
+    console.log(query);
     return {
-      /*repo: response.data,*/ fileTree: fileTree.data.tree
+      query
     };
   }
 
   render() {
-    console.log(this.context);
+    // console.log(this.context);
+    const {
+      query: { branch, owner, repo, path }
+    } = this.props;
+
+    const expression = `${branch || "master"}:${path || ""}`;
     return (
-      // <div>
-      //   <FolderTree
-      //     items={this.props.fileTree}
-      //     onItemPress={path => console.log(path)}
-      //   />
-      // </div>
-      // (
-      //   <FolderTree
-      //     items={this.props.fileTree}
-      //     onItemPress={path => console.log(path)}
-      //   />
-      // );
       <GetRepoObjectComponent
         variables={{
-          name: "codeponder",
-          expression: "master:packages/server",
-          owner: "benawad"
+          name: repo,
+          expression, //"master:packages/server",
+          owner
         }}
-        // ssr={false}
         client={this.context}
       >
-        {({ data }) => {
-          console.log(data);
-          return null;
+        {({ data, loading }) => {
+          if (!data || loading) {
+            return null;
+          }
+
+          if (!data.repository) {
+            return "could not find repo";
+          }
+
+          if (!data.repository.object) {
+            return "could not find folder/file";
+          }
+
+          const { object } = data.repository;
+
+          if (object.__typename === "Blob") {
+            return "blob";
+          }
+
+          if (object.__typename === "Tree") {
+            return (
+              <FolderTree
+                items={
+                  (data.repository.object as GetRepoObjectTreeInlineFragment)
+                    .entries || []
+                }
+                Link={Link}
+                getLinkProps={itemPath => ({
+                  // passHref: true,
+                  route: "repo",
+                  params: {
+                    branch: branch ? branch : "master",
+                    owner,
+                    path: [
+                      ...(path ? path.split("/") : []),
+                      ...itemPath.split("/")
+                    ] as any,
+                    repo
+                  }
+                })}
+                // onItemPress={itemPath => {
+                //   console.log(`${path || ""}/${itemPath}`);
+                //   Router.pushRoute("repo", {
+                //     branch: branch ? branch : "master",
+                //     owner,
+                //     // path: `${path || ""}${itemPath}`,
+                //     path: [
+                //       ...(path ? path.split("/") : []),
+                //       ...itemPath.split("/")
+                //     ],
+                //     // : [...itemPath.split("/")],
+                //     repo
+                //   } as any);
+                // }}
+              />
+            );
+          }
+
+          return "something went wrong";
         }}
       </GetRepoObjectComponent>
     );
