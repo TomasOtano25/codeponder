@@ -43,19 +43,24 @@ export type CreateCodeReviewCreateCodeReviewQuestion = {
   codeReviewQuestion: CreateCodeReviewCodeReviewQuestion;
 };
 
-export type CreateCodeReviewCodeReviewQuestion = {
-  __typename?: "CodeReviewQuestion";
+export type CreateCodeReviewCodeReviewQuestion = CodeReviewQuestionInfoFragment;
 
-  id: string;
-
-  startingLineNum: number;
-
-  endingLineNum: number;
-
-  question: string;
-
-  createdAt: DateTime;
+export type FindCodeReviewQuestionsVariables = {
+  username: string;
+  branch: string;
+  repo: string;
+  path?: string | null;
 };
+
+export type FindCodeReviewQuestionsQuery = {
+  __typename?: "Query";
+
+  findCodeReviewQuestions:
+    | FindCodeReviewQuestionsFindCodeReviewQuestions[]
+    | null;
+};
+
+export type FindCodeReviewQuestionsFindCodeReviewQuestions = CodeReviewQuestionInfoFragment;
 
 export type MeVariables = {};
 
@@ -79,10 +84,53 @@ export type MeMe = {
   accessToken: string;
 };
 
+export type CodeReviewQuestionInfoFragment = {
+  __typename?: "CodeReviewQuestion";
+
+  id: string;
+
+  startingLineNum: number;
+
+  endingLineNum: number;
+
+  question: string;
+
+  path: string;
+
+  repo: string;
+
+  branch: string;
+
+  username: string;
+
+  creatorId: string;
+
+  createdAt: DateTime;
+};
+
 import * as ReactApollo from "react-apollo";
 import * as React from "react";
 
 import gql from "graphql-tag";
+
+// ====================================================
+// Fragments
+// ====================================================
+
+export const CodeReviewQuestionInfoFragmentDoc = gql`
+  fragment CodeReviewQuestionInfo on CodeReviewQuestion {
+    id
+    startingLineNum
+    endingLineNum
+    question
+    path
+    repo
+    branch
+    username
+    creatorId
+    createdAt
+  }
+`;
 
 // ====================================================
 // Components
@@ -110,14 +158,12 @@ export const CreateCodeReviewDocument = gql`
       }
     ) {
       codeReviewQuestion {
-        id
-        startingLineNum
-        endingLineNum
-        question
-        createdAt
+        ...CodeReviewQuestionInfo
       }
     }
   }
+
+  ${CodeReviewQuestionInfoFragmentDoc}
 `;
 export class CreateCodeReviewComponent extends React.Component<
   Partial<
@@ -160,6 +206,69 @@ export function CreateCodeReviewHOC<TProps, TChildProps = any>(
     CreateCodeReviewVariables,
     CreateCodeReviewProps<TChildProps>
   >(CreateCodeReviewDocument, operationOptions);
+}
+export const FindCodeReviewQuestionsDocument = gql`
+  query FindCodeReviewQuestions(
+    $username: String!
+    $branch: String!
+    $repo: String!
+    $path: String
+  ) {
+    findCodeReviewQuestions(
+      usename: $username
+      branch: $branch
+      repo: $repo
+      path: $path
+    ) {
+      ...CodeReviewQuestionInfo
+    }
+  }
+
+  ${CodeReviewQuestionInfoFragmentDoc}
+`;
+export class FindCodeReviewQuestionsComponent extends React.Component<
+  Partial<
+    ReactApollo.QueryProps<
+      FindCodeReviewQuestionsQuery,
+      FindCodeReviewQuestionsVariables
+    >
+  >
+> {
+  render() {
+    return (
+      <ReactApollo.Query<
+        FindCodeReviewQuestionsQuery,
+        FindCodeReviewQuestionsVariables
+      >
+        query={FindCodeReviewQuestionsDocument}
+        {...(this as any)["props"] as any}
+      />
+    );
+  }
+}
+export type FindCodeReviewQuestionsProps<TChildProps = any> = Partial<
+  ReactApollo.DataProps<
+    FindCodeReviewQuestionsQuery,
+    FindCodeReviewQuestionsVariables
+  >
+> &
+  TChildProps;
+export function FindCodeReviewQuestionsHOC<TProps, TChildProps = any>(
+  operationOptions:
+    | ReactApollo.OperationOption<
+        TProps,
+        FindCodeReviewQuestionsQuery,
+        FindCodeReviewQuestionsVariables,
+        FindCodeReviewQuestionsProps<TChildProps>
+      >
+    | undefined
+) {
+  return ReactApollo.graphql<
+    TProps,
+    FindCodeReviewQuestionsQuery,
+    FindCodeReviewQuestionsVariables,
+    FindCodeReviewQuestionsProps<TChildProps>
+  >(FindCodeReviewQuestionsDocument, operationOptions);
 }
 export const MeDocument = gql`
   query Me {

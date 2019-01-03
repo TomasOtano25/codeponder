@@ -24,7 +24,7 @@ export class CodeReviewQuestionResolver {
   }
 
   @Query(() => [CodeReviewQuestion], { nullable: true })
-  async findCodeReviewQuestion(
+  async findCodeReviewQuestions(
     @Arg("path", { nullable: true }) path: string, // @Arg("question") question: CreateCodeReviewQuestionInput,
     @Arg("repo") repo: string, // @Ctx() ctx: MyContext
     @Arg("branch") branch: string,
