@@ -13,8 +13,9 @@ import {
 } from "../components/github-apollo-components";
 // import { ApolloClient, NormalizedCacheObject } from "apollo-boost";
 import { GitHubApolloClientContext } from "../components/GithubApolloClientContext";
-import { FolderTree } from "@codeponder/ui";
+import { FolderTree, Separator } from "@codeponder/ui";
 import { Link } from "../server/routes";
+import { string } from "yup";
 
 interface Props {
   // query: {
@@ -56,6 +57,69 @@ export default class Repo extends React.PureComponent<Props> {
     };
   }
 
+  getParamsForPath = (path: string) => {
+    console.log(path);
+  };
+
+  renderFilePath = (name: string, path?: string) => {
+    if (!path) {
+      return null;
+    }
+    const parts = [name, ...path.split("/")];
+    let currentPath: string[] = [];
+    // return <span>{parts.join(" / ")}</span>;
+
+    return parts.map((part, idx) => {
+      console.log(currentPath, part);
+      if (idx) {
+        currentPath.push(part);
+      }
+
+      return idx === parts.length - 1 ? (
+        <strong key={part + idx}>{part}</strong>
+      ) : (
+        <React.Fragment key={part + idx}>
+          <Link
+            passHref={true}
+            route="repo"
+            params={{
+              branch: this.props.branch ? this.props.branch : "master",
+              owner: this.props.owner,
+              path: [...currentPath] as any,
+              name
+            }}
+          >
+            <a>{part}</a>
+          </Link>
+          <Separator>/</Separator>
+        </React.Fragment>
+      );
+    });
+
+    // return parts.map((part, idx) =>
+    //   idx === parts.length - 1 ? (
+    //     <strong key={part + idx}>{part}</strong>
+    //   ) : (
+    //     <React.Fragment key={part + idx}>
+    //       <Link
+    //         passHref={true}
+    //         route="repo"
+    //         params={{
+    //           branch: this.props.branch ? this.props.branch : "master",
+    //           owner: this.props.owner,
+    //           path: this.getParamsForPath(path) as any,
+    //           name
+    //         }}
+    //         href="#"
+    //       >
+    //         <a>{part}</a>
+    //       </Link>
+    //       <Separator>/</Separator>
+    //     </React.Fragment>
+    //   )
+    // );
+  };
+
   render() {
     // console.log(this.context);
     // const {
@@ -92,45 +156,53 @@ export default class Repo extends React.PureComponent<Props> {
           const { object } = data.repository;
 
           if (object.__typename === "Blob") {
-            return <pre>{object.text}}</pre>;
+            return (
+              <>
+                {this.renderFilePath(name, path)}
+                <pre>{object.text}}</pre>
+              </>
+            );
           }
 
           if (object.__typename === "Tree") {
             return (
-              <FolderTree
-                items={
-                  (data.repository.object as GetRepoObjectTreeInlineFragment)
-                    .entries || []
-                }
-                Link={Link}
-                getLinkProps={itemPath => ({
-                  // passHref: true,
-                  route: "repo",
-                  params: {
-                    branch: branch ? branch : "master",
-                    owner,
-                    path: [
-                      ...(path ? path.split("/") : []),
-                      ...itemPath.split("/")
-                    ] as any,
-                    name
+              <>
+                {this.renderFilePath(name, path)}
+                <FolderTree
+                  items={
+                    (data.repository.object as GetRepoObjectTreeInlineFragment)
+                      .entries || []
                   }
-                })}
-                // onItemPress={itemPath => {
-                //   console.log(`${path || ""}/${itemPath}`);
-                //   Router.pushRoute("repo", {
-                //     branch: branch ? branch : "master",
-                //     owner,
-                //     // path: `${path || ""}${itemPath}`,
-                //     path: [
-                //       ...(path ? path.split("/") : []),
-                //       ...itemPath.split("/")
-                //     ],
-                //     // : [...itemPath.split("/")],
-                //     repo
-                //   } as any);
-                // }}
-              />
+                  Link={Link}
+                  getLinkProps={itemPath => ({
+                    // passHref: true,
+                    route: "repo",
+                    params: {
+                      branch: branch ? branch : "master",
+                      owner,
+                      path: [
+                        ...(path ? path.split("/") : []),
+                        ...itemPath.split("/")
+                      ] as any,
+                      name
+                    }
+                  })}
+                  // onItemPress={itemPath => {
+                  //   console.log(`${path || ""}/${itemPath}`);
+                  //   Router.pushRoute("repo", {
+                  //     branch: branch ? branch : "master",
+                  //     owner,
+                  //     // path: `${path || ""}${itemPath}`,
+                  //     path: [
+                  //       ...(path ? path.split("/") : []),
+                  //       ...itemPath.split("/")
+                  //     ],
+                  //     // : [...itemPath.split("/")],
+                  //     repo
+                  //   } as any);
+                  // }}
+                />
+              </>
             );
           }
 

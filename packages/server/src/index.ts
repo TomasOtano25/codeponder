@@ -1,6 +1,5 @@
 // import * as dotenv from "dotenv-safe";
 // dotenv.config();
-require("dotenv-safe").config();
 
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
@@ -17,6 +16,9 @@ import { UserResolver } from "./modules/user/UserResolver";
 import { User } from "./entity/User";
 import { redis } from "./redis";
 import { createUser } from "./utils/createUser";
+import { CodeReviewQuestionResolver } from "./modules/code-review-question/CodeReviewQuestionResolver";
+
+require("dotenv-safe").config();
 
 // process.env.NODE_ENV = "development";
 
@@ -30,7 +32,11 @@ const startServer = async () => {
 
   const server = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver]
+      resolvers: [UserResolver, CodeReviewQuestionResolver],
+      authChecker: ({ context }) => {
+        console.log(context.req.session!.userId);
+        return context.req.session && context.req.session.userId; // or false if access denied
+      }
     }),
     context: ({ req }: any) => ({ req })
   });
@@ -132,7 +138,8 @@ const startServer = async () => {
         req.session.accessToken = req.user.accessToken;
         req.session.refreshToken = req.user.refreshToken;
       }
-      res.redirect("http://localhost:3000/pick-repo");
+      // res.redirect("http://localhost:3000/pick-repo");
+      res.redirect("http://localhost:4000/graphql");
     }
   );
 

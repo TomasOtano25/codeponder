@@ -1,5 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  OneToMany
+} from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
+import { CodeReviewQuestion } from "./CodeReviewQuestion";
 
 @Entity()
 @ObjectType()
@@ -26,6 +33,12 @@ export class User extends BaseEntity {
   @Field({ nullable: true })
   @Column({ type: "text", nullable: true })
   bio?: string;
+
+  @Column({ type: "uuid", nullable: true })
+  codeReviewQuestionsId: string;
+
+  @OneToMany(() => CodeReviewQuestion, crq => crq.creator)
+  codeReviewQuestions: Promise<CodeReviewQuestion[]>;
 
   @Field(() => String)
   accessToken: string;
