@@ -16,6 +16,7 @@ import { GitHubApolloClientContext } from "../components/GithubApolloClientConte
 import { FolderTree, Separator } from "@codeponder/ui";
 import { Link } from "../server/routes";
 import { string } from "yup";
+import CodeFile from "../components/CodeFile";
 
 interface Props {
   // query: {
@@ -159,7 +160,7 @@ export default class Repo extends React.PureComponent<Props> {
             return (
               <>
                 {this.renderFilePath(name, path)}
-                <pre>{object.text}}</pre>
+                <CodeFile text={object.text} />
               </>
             );
           }
