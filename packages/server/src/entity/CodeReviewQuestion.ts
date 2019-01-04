@@ -27,9 +27,13 @@ export class CodeReviewQuestion extends BaseEntity {
   @Column({ type: "int" })
   endingLineNum: number;
 
+  // @Field()
+  // @Column({ type: "text" })
+  // question: string;
+
   @Field()
   @Column({ type: "text" })
-  question: string;
+  text: string;
 
   @Field(() => String, { nullable: true })
   @Column({ type: "text", nullable: true })
@@ -54,8 +58,9 @@ export class CodeReviewQuestion extends BaseEntity {
   @ManyToOne(() => User, user => user.codeReviewQuestions)
   creator: Promise<User>;
 
-  @OneToMany(() => QuestionReply, qr => qr.question)
-  questionReplies: Promise<QuestionReply[]>;
+  @Field(() => [QuestionReply])
+  @OneToMany(() => QuestionReply, qr => qr.question, { lazy: true })
+  replies: Promise<QuestionReply[]>;
 
   @Field()
   @CreateDateColumn()

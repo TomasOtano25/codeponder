@@ -52,6 +52,9 @@ export class CodeReviewQuestionResolver extends CodeReviewQuestionBaseResolver {
     if (path) {
       where.path = path;
     }
-    return CodeReviewQuestion.find({ where });
+
+    const stuff = await CodeReviewQuestion.find({ where });
+    console.log(stuff);
+    return stuff;
   }
 }

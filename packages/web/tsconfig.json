@@ -20,6 +20,6 @@
     "resolveJsonModule": true
   },
   "references": [{ "path": "../common" }, { "path": "../ui" }],
-  "include": ["**/*.ts", "**/*.tsx", "**/*.json"],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "next.config.js"]
 }

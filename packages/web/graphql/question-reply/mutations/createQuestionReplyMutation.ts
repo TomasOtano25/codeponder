@@ -1,13 +1,17 @@
 import gql from "graphql-tag";
+import { questionReplyInfoFragment } from "../fragments/questionReplyInfo";
 
 export const createQuestionReplyMutation = gql`
   mutation CreateQuestionReply($questionReply: CreateQuestionReplyInput!) {
     createQuestionReply(questionReply: $questionReply) {
       questionReply {
-        id
-        reply
-        creatorId
+        ...QuestionReplyInfo
+        # id
+        # text
+        # creatorId
       }
     }
   }
+
+  ${questionReplyInfoFragment}
 `;

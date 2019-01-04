@@ -13,13 +13,8 @@ export const createCodeReviewQuestionMutation = gql`
     $codeReviewQuestion: CreateCodeReviewQuestionInput!
   ) {
     createCodeReviewQuestion(
-      codeReviewQuestion: $codeReviewQuestion # { #   startingLineNum: $startingLineNum #   endingLineNum: $endingLineNum #   question: $question
-    ) #   path: $path
-    #   repo: $repo
-    #   username: $username
-    #   branch: $branch
-    # }
-    {
+      codeReviewQuestion: $codeReviewQuestion # { #   startingLineNum: $startingLineNum #   endingLineNum: $endingLineNum #   question: $question #   path: $path #   repo: $repo #   username: $username #   branch: $branch # }
+    ) {
       codeReviewQuestion {
         ...CodeReviewQuestionInfo
       }

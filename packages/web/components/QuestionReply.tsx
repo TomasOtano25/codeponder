@@ -15,7 +15,7 @@ export const QuestionReply: React.SFC<Props> = ({ questionId }) => {
           onSubmit={async e => {
             e.preventDefault();
             const response = await mutate({
-              variables: { questionReply: { questionId, reply: value } }
+              variables: { questionReply: { questionId, text: value } }
             });
 
             console.log(response);

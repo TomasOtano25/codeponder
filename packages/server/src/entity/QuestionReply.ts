@@ -18,15 +18,19 @@ export class QuestionReply extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  // @Field()
+  // @Column({ type: "text" })
+  // reply: string;
+
   @Field()
   @Column({ type: "text" })
-  reply: string;
+  text: string;
 
   @Field()
   @Column("uuid")
   questionId: string;
 
-  @ManyToOne(() => CodeReviewQuestion, crq => crq.questionReplies)
+  @ManyToOne(() => CodeReviewQuestion, crq => crq.replies)
   question: Promise<CodeReviewQuestion>;
 
   @Field()

@@ -11,8 +11,11 @@ export class CreateCodeReviewQuestionInput
   @Field(() => Int)
   endingLineNum: number;
 
+  // @Field()
+  // question: string;
+
   @Field()
-  question: string;
+  text: string;
 
   @Field(() => String, { nullable: true })
   path: string | null;
