@@ -1,5 +1,6 @@
 import gql from "graphql-tag";
 import { questionReplyInfoFragment } from "../../question-reply/fragments/questionReplyInfo";
+import { userInfoFragment } from "../../user/fragments/userInfo";
 
 export const codeReviewQuestionInfoFragment = gql`
   fragment CodeReviewQuestionInfo on CodeReviewQuestion {
@@ -11,12 +12,16 @@ export const codeReviewQuestionInfoFragment = gql`
     repo
     branch
     username
-    creatorId
-    createdAt
+    # creatorId
+    creator {
+      ...UserInfo
+    }
     replies {
       ...QuestionReplyInfo
     }
+    createdAt
   }
 
+  ${userInfoFragment}
   ${questionReplyInfoFragment}
 `;

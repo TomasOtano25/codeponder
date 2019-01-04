@@ -37,6 +37,7 @@ export class QuestionReply extends BaseEntity {
   @Column("uuid")
   creatorId: string;
 
+  @Field(() => User)
   @ManyToOne(() => User, user => user.questionReplies)
   creator: Promise<User>;
 

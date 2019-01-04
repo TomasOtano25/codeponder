@@ -95,10 +95,12 @@ export const CodeFile: React.SFC<Props> = ({
                   {data.findCodeReviewQuestions.map(crq => {
                     return (
                       <div key={crq.id}>
+                        <div>|{crq.creator.username}|</div>
                         <div>{crq.text}</div>
                         <div>
                           {crq.replies.map(reply => (
                             <div key={reply.id} style={{ color: "pink" }}>
+                              <div>|{reply.creator.username}|</div>
                               {reply.text}
                             </div>
                           ))}

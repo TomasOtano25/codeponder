@@ -88,19 +88,7 @@ export type MeQuery = {
   me: MeMe | null;
 };
 
-export type MeMe = {
-  __typename?: "User";
-
-  id: string;
-
-  username: string | null;
-
-  pictureUrl: string | null;
-
-  bio: string | null;
-
-  accessToken: string;
-};
+export type MeMe = UserInfoFragment;
 
 export type CodeReviewQuestionInfoFragment = {
   __typename?: "CodeReviewQuestion";
@@ -121,12 +109,14 @@ export type CodeReviewQuestionInfoFragment = {
 
   username: string;
 
-  creatorId: string;
-
-  createdAt: DateTime;
+  creator: CodeReviewQuestionInfoCreator;
 
   replies: CodeReviewQuestionInfoReplies[];
+
+  createdAt: DateTime;
 };
+
+export type CodeReviewQuestionInfoCreator = UserInfoFragment;
 
 export type CodeReviewQuestionInfoReplies = QuestionReplyInfoFragment;
 
@@ -137,7 +127,23 @@ export type QuestionReplyInfoFragment = {
 
   text: string;
 
-  creatorId: string;
+  creator: QuestionReplyInfoCreator;
+};
+
+export type QuestionReplyInfoCreator = UserInfoFragment;
+
+export type UserInfoFragment = {
+  __typename?: "User";
+
+  id: string;
+
+  username: string | null;
+
+  pictureUrl: string | null;
+
+  bio: string | null;
+
+  accessToken: string;
 };
 
 import * as ReactApollo from "react-apollo";
@@ -149,12 +155,26 @@ import gql from "graphql-tag";
 // Fragments
 // ====================================================
 
+export const UserInfoFragmentDoc = gql`
+  fragment UserInfo on User {
+    id
+    username
+    pictureUrl
+    bio
+    accessToken
+  }
+`;
+
 export const QuestionReplyInfoFragmentDoc = gql`
   fragment QuestionReplyInfo on QuestionReply {
     id
     text
-    creatorId
+    creator {
+      ...UserInfo
+    }
   }
+
+  ${UserInfoFragmentDoc}
 `;
 
 export const CodeReviewQuestionInfoFragmentDoc = gql`
@@ -167,13 +187,16 @@ export const CodeReviewQuestionInfoFragmentDoc = gql`
     repo
     branch
     username
-    creatorId
-    createdAt
+    creator {
+      ...UserInfo
+    }
     replies {
       ...QuestionReplyInfo
     }
+    createdAt
   }
 
+  ${UserInfoFragmentDoc}
   ${QuestionReplyInfoFragmentDoc}
 `;
 
@@ -367,13 +390,11 @@ export function CreateQuestionReplyHOC<TProps, TChildProps = any>(
 export const MeDocument = gql`
   query Me {
     me {
-      id
-      username
-      pictureUrl
-      bio
-      accessToken
+      ...UserInfo
     }
   }
+
+  ${UserInfoFragmentDoc}
 `;
 export class MeComponent extends React.Component<
   Partial<ReactApollo.QueryProps<MeQuery, MeVariables>>
