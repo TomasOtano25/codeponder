@@ -34,4 +34,9 @@ const QuestionReplyBaseResolver = createBaseResolver(
 );
 
 @Resolver(QuestionReply)
-export class QuestionReplyResolver extends QuestionReplyBaseResolver {}
+export class QuestionReplyResolver extends QuestionReplyBaseResolver {
+  // @FieldResolver(() => User)
+  // creator(@Root() questionReply: QuestionReply, @Ctx() ctx: MyContext) {
+  //   return ctx.userLoader.load(questionReply.creatorId);
+  // }
+}

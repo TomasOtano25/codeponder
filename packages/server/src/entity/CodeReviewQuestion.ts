@@ -59,7 +59,7 @@ export class CodeReviewQuestion extends BaseEntity {
   @ManyToOne(() => User, user => user.codeReviewQuestions)
   creator: Promise<User>;
 
-  @Field(() => [QuestionReply])
+  @Field(() => [QuestionReply], { nullable: true })
   @OneToMany(() => QuestionReply, qr => qr.question, { lazy: true })
   replies: Promise<QuestionReply[]>;
 

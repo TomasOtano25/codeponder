@@ -4,9 +4,12 @@ import {
   Mutation,
   Arg,
   ClassType,
-  Ctx
+  Ctx,
+  FieldResolver,
+  Root
 } from "type-graphql";
 import { MyContext } from "../../types/Context";
+import { User } from "../../entity/User";
 
 // import { MyContext } from "../../types/Context";
 // @Authorized()
@@ -51,6 +54,12 @@ export function createBaseResolver<
         .save();
 
       return { [argAndReturnKeyName]: value };
+    }
+
+    @FieldResolver(() => User)
+    creator(@Root() root: any, @Ctx() ctx: MyContext) {
+      console.log(root);
+      return ctx.userLoader.load(root.creatorId);
     }
   }
 
