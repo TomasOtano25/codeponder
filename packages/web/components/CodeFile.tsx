@@ -1,10 +1,10 @@
 import * as React from "react";
-import { useState, useCallback } from "react";
 import {
-  CreateCodeReviewComponent,
-  FindCodeReviewQuestionsComponent
+  FindCodeReviewQuestionsComponent,
+  CreateCodeReviewQuestionComponent
 } from "./apollo-components";
-import { json } from "body-parser";
+import { QuestionReply } from "./QuestionReply";
+import { useInputValue } from "../utils/useInputValue";
 
 interface Props {
   text: string | null;
@@ -12,17 +12,6 @@ interface Props {
   username: string;
   branch: string;
   path?: string;
-}
-
-function useInputValue<T>(
-  initialValue: T
-): [T, (e: React.ChangeEvent<HTMLInputElement>) => void] {
-  const [value, setValue] = useState<T>(initialValue);
-  const onChange = useCallback(event => {
-    setValue(event.currentTarget.value);
-  }, []);
-
-  return [value, onChange];
 }
 
 export const CodeFile: React.SFC<Props> = ({
@@ -37,7 +26,7 @@ export const CodeFile: React.SFC<Props> = ({
   const [question, questionOnChange] = useInputValue("");
 
   return (
-    <CreateCodeReviewComponent>
+    <CreateCodeReviewQuestionComponent>
       {mutate => (
         <>
           <pre>{text}</pre>
@@ -47,13 +36,15 @@ export const CodeFile: React.SFC<Props> = ({
               console.log("send mutation");
               const response = await mutate({
                 variables: {
-                  startingLineNum: parseInt(startingLineNum, 10), // parseInt(startingLineNum, 10)
-                  endingLineNum: parseInt(endingLineNum, 10),
-                  question,
-                  repo,
-                  username,
-                  branch: branch ? branch : "master",
-                  path
+                  codeReviewQuestion: {
+                    startingLineNum: parseInt(startingLineNum, 10), // parseInt(startingLineNum, 10)
+                    endingLineNum: parseInt(endingLineNum, 10),
+                    question,
+                    repo,
+                    username,
+                    branch: branch ? branch : "master",
+                    path
+                  }
                 }
               });
               console.log(response);
@@ -102,7 +93,12 @@ export const CodeFile: React.SFC<Props> = ({
               return (
                 <div>
                   {data.findCodeReviewQuestions.map(crq => {
-                    return <div key={crq.id}>{crq.question}</div>;
+                    return (
+                      <div key={crq.id}>
+                        <div>{crq.question}</div>
+                        <QuestionReply questionId={crq.id} />
+                      </div>
+                    );
                   })}
                 </div>
               );
@@ -110,7 +106,7 @@ export const CodeFile: React.SFC<Props> = ({
           </FindCodeReviewQuestionsComponent>
         </>
       )}
-    </CreateCodeReviewComponent>
+    </CreateCodeReviewQuestionComponent>
   );
 };
 
