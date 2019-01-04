@@ -1,5 +1,6 @@
 // import * as dotenv from "dotenv-safe";
 // dotenv.config();
+require("dotenv-safe").config();
 
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
@@ -16,9 +17,8 @@ import { UserResolver } from "./modules/user/UserResolver";
 import { User } from "./entity/User";
 import { redis } from "./redis";
 import { createUser } from "./utils/createUser";
-import { CodeReviewQuestionResolver } from "./modules/code-review-question/CodeReviewQuestionResolver";
-
-require("dotenv-safe").config();
+import { CodeReviewQuestionResolver } from "./modules/code-review-question/resolver";
+import { QuestionReplyResolver } from "./modules/question-reply/resolver";
 
 // process.env.NODE_ENV = "development";
 
@@ -32,7 +32,11 @@ const startServer = async () => {
 
   const server = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver, CodeReviewQuestionResolver],
+      resolvers: [
+        UserResolver,
+        CodeReviewQuestionResolver,
+        QuestionReplyResolver
+      ],
       authChecker: ({ context }) => {
         console.log(context.req.session!.userId);
         return context.req.session && context.req.session.userId; // or false if access denied

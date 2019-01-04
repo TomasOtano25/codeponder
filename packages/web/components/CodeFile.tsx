@@ -1,12 +1,16 @@
 import * as React from "react";
 import { useState, useCallback } from "react";
-import { CreateCodeReviewComponent } from "./apollo-components";
+import {
+  CreateCodeReviewComponent,
+  FindCodeReviewQuestionsComponent
+} from "./apollo-components";
+import { json } from "body-parser";
 
 interface Props {
   text: string | null;
   repo: string;
   username: string;
-  branch?: string;
+  branch: string;
   path?: string;
 }
 
@@ -26,10 +30,10 @@ export const CodeFile: React.SFC<Props> = ({
   repo,
   username,
   branch,
-  path = "/"
+  path
 }) => {
-  const [startingLineNum, startingLineNumChange] = useInputValue(0);
-  const [endingLineNum, endingLineNumChange] = useInputValue(0);
+  const [startingLineNum, startingLineNumChange] = useInputValue("0");
+  const [endingLineNum, endingLineNumChange] = useInputValue("0");
   const [question, questionOnChange] = useInputValue("");
 
   return (
@@ -43,8 +47,8 @@ export const CodeFile: React.SFC<Props> = ({
               console.log("send mutation");
               const response = await mutate({
                 variables: {
-                  startingLineNum, // parseInt(startingLineNum, 10)
-                  endingLineNum,
+                  startingLineNum: parseInt(startingLineNum, 10), // parseInt(startingLineNum, 10)
+                  endingLineNum: parseInt(endingLineNum, 10),
                   question,
                   repo,
                   username,
@@ -56,14 +60,14 @@ export const CodeFile: React.SFC<Props> = ({
             }}
           >
             <input
-              type="number"
+              // type="number"
               name="startingLineNum"
               placeholder="startingLineNum"
               value={startingLineNum}
               onChange={startingLineNumChange}
             />
             <input
-              type="number"
+              // type="number"
               name="endingLineNum"
               placeholder="endingLineNum"
               value={endingLineNum}
@@ -76,7 +80,34 @@ export const CodeFile: React.SFC<Props> = ({
               onChange={questionOnChange}
             />
             <button type="submit">save</button>
-          </form>{" "}
+          </form>
+          <FindCodeReviewQuestionsComponent
+            variables={{
+              branch,
+              path,
+              repo,
+              username
+            }}
+          >
+            {({ data, loading }) => {
+              console.log(data);
+              if (!data || loading) {
+                return null;
+              }
+
+              if (!data.findCodeReviewQuestions) {
+                return null;
+              }
+
+              return (
+                <div>
+                  {data.findCodeReviewQuestions.map(crq => {
+                    return <div key={crq.id}>{crq.question}</div>;
+                  })}
+                </div>
+              );
+            }}
+          </FindCodeReviewQuestionsComponent>
         </>
       )}
     </CreateCodeReviewComponent>

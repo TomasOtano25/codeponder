@@ -6,7 +6,7 @@ export const createCodeReviewMutation = gql`
     $startingLineNum: Int!
     $endingLineNum: Int!
     $question: String!
-    $path: String!
+    $path: String
     $repo: String!
     $username: String!
     $branch: String!
