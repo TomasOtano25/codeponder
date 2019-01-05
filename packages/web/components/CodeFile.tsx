@@ -5,6 +5,9 @@ import {
 } from "./apollo-components";
 import { QuestionReply } from "./QuestionReply";
 import { useInputValue } from "../utils/useInputValue";
+import Highlight, { defaultProps } from "prism-react-renderer";
+// import theme from "prism-react-renderer/themes/duotoneLight";
+import "prismjs/themes/prism-solarizedlight.css";
 
 interface Props {
   code: string | null;
@@ -25,11 +28,54 @@ export const CodeFile: React.SFC<Props> = ({
   const [endingLineNum, endingLineNumChange] = useInputValue("0");
   const [text, textChange] = useInputValue("");
 
+  const extension = path ? path.split(".").pop() : "";
+
   return (
     <CreateCodeReviewQuestionComponent>
       {mutate => (
         <>
-          <pre>{code}</pre>
+          <Highlight
+            {...defaultProps}
+            code={code}
+            language={extension}
+            theme={undefined}
+          >
+            {({
+              className,
+              style,
+              tokens,
+              getLineProps,
+              getTokenProps
+            }: any) => (
+              <pre className={className} style={style}>
+                {tokens.map((line: string[], i: number) => (
+                  <div {...getLineProps({ line, key: i })}>
+                    <div style={{ display: "flex" }}>
+                      <div
+                        style={{
+                          color: "rgba(27,31,35,.3)",
+                          padding: "0  10px",
+                          textAlign: "right",
+                          minWidth: "50px",
+                          lineHeight: "20px",
+                          cursor: "pointer",
+                          userSelect: "none"
+                        }}
+                      >
+                        {i + 1}
+                      </div>
+                      {line.map((token, key) => (
+                        <span {...getTokenProps({ token, key })} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </pre>
+            )}
+          </Highlight>
+          <pre>
+            <code className={`language-${extension}`}>{code}</code>
+          </pre>
           <form
             onSubmit={async e => {
               e.preventDefault();

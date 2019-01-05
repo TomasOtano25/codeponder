@@ -1,6 +1,4 @@
 import * as React from "react";
-// import { FolderTree } from "@codeponder/ui";
-// import { GitCreateTreeResponseTreeItem } from "@octokit/rest";
 
 import { NextContextWithApollo } from "../types/NextContextWithApollo";
 // import { octokit } from "../lib/octo";
@@ -16,6 +14,9 @@ import { GitHubApolloClientContext } from "../components/GithubApolloClientConte
 import { FolderTree, Separator } from "@codeponder/ui";
 import { Link } from "../server/routes";
 import { CodeFile } from "../components/CodeFile";
+// import "prismjs/themes/prism.css";
+// import "prismjs";
+// import "prismjs/themes/prism-okaidia.css";
 
 interface Props {
   // query: {

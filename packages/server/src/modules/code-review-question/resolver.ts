@@ -69,11 +69,12 @@ export class CodeReviewQuestionResolver extends CodeReviewQuestionBaseResolver {
   // }
 
   @FieldResolver(() => [QuestionReply])
-  replies(
+  async replies(
     @Root() codeReviewQuestion: CodeReviewQuestion,
     @Ctx() ctx: MyContext
   ) {
-    console.log(ctx.questionReplyLoader.load(codeReviewQuestion.id));
-    return ctx.questionReplyLoader.load(codeReviewQuestion.id);
+    const response = await ctx.questionReplyLoader.load(codeReviewQuestion.id);
+
+    return response ? response : [];
   }
 }
