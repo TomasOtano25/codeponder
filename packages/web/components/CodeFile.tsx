@@ -6,8 +6,8 @@ import {
 import { QuestionReply } from "./QuestionReply";
 import { useInputValue } from "../utils/useInputValue";
 import Highlight, { defaultProps } from "prism-react-renderer";
-// import theme from "prism-react-renderer/themes/duotoneLight";
-import "prismjs/themes/prism-solarizedlight.css";
+import theme from "prism-react-renderer/themes/duotoneLight";
+// import "prismjs/themes/prism-solarizedlight.css";
 
 interface Props {
   code: string | null;
@@ -38,7 +38,7 @@ export const CodeFile: React.SFC<Props> = ({
             {...defaultProps}
             code={code}
             language={extension}
-            theme={undefined}
+            theme={theme}
           >
             {({
               className,
@@ -59,7 +59,8 @@ export const CodeFile: React.SFC<Props> = ({
                           minWidth: "50px",
                           lineHeight: "20px",
                           cursor: "pointer",
-                          userSelect: "none"
+                          userSelect: "none",
+                          borderRight: "1px solid #999"
                         }}
                       >
                         {i + 1}
