@@ -14,6 +14,7 @@ import { GitHubApolloClientContext } from "../components/GithubApolloClientConte
 import { FolderTree, Separator } from "@codeponder/ui";
 import { Link } from "../server/routes";
 import { CodeFile } from "../components/CodeFile";
+import Layout from "../components/Layout";
 // import "prismjs/themes/prism.css";
 // import "prismjs";
 // import "prismjs/themes/prism-okaidia.css";
@@ -131,91 +132,94 @@ export default class Repo extends React.PureComponent<Props> {
     const { branch, owner, path, name, expression } = this.props;
 
     return (
-      <GetRepoObjectComponent
-        variables={{
-          // name: repo,
-          name,
-          expression, //"master:packages/server",
-          owner
-        }}
-        client={this.context}
-      >
-        {({ data, loading }) => {
-          if (!data || loading) {
-            console.log("render null");
-            return null;
-          }
+      <Layout title="Repo">
+        <GetRepoObjectComponent
+          variables={{
+            // name: repo,
+            name,
+            expression, //"master:packages/server",
+            owner
+          }}
+          client={this.context}
+        >
+          {({ data, loading }) => {
+            if (!data || loading) {
+              console.log("render null");
+              return null;
+            }
 
-          if (!data.repository) {
-            return "could not find repo";
-          }
+            if (!data.repository) {
+              return "could not find repo";
+            }
 
-          if (!data.repository.object) {
-            return "could not find folder/file";
-          }
+            if (!data.repository.object) {
+              return "could not find folder/file";
+            }
 
-          const { object } = data.repository;
+            const { object } = data.repository;
 
-          if (object.__typename === "Blob") {
-            return (
-              <>
-                {this.renderFilePath(name, path)}
-                <CodeFile
-                  branch={branch ? branch : "master"}
-                  repo={name}
-                  path={path}
-                  username={owner}
-                  code={object.text}
-                />
-              </>
-            );
-          }
+            if (object.__typename === "Blob") {
+              return (
+                <>
+                  {this.renderFilePath(name, path)}
+                  <CodeFile
+                    branch={branch ? branch : "master"}
+                    repo={name}
+                    path={path}
+                    username={owner}
+                    code={object.text}
+                  />
+                </>
+              );
+            }
 
-          if (object.__typename === "Tree") {
-            return (
-              <>
-                {this.renderFilePath(name, path)}
-                <FolderTree
-                  items={
-                    (data.repository.object as GetRepoObjectTreeInlineFragment)
-                      .entries || []
-                  }
-                  Link={Link}
-                  getLinkProps={itemPath => ({
-                    // passHref: true,
-                    route: "repo",
-                    params: {
-                      branch: branch ? branch : "master",
-                      owner,
-                      path: [
-                        ...(path ? path.split("/") : []),
-                        ...itemPath.split("/")
-                      ] as any,
-                      name
+            if (object.__typename === "Tree") {
+              return (
+                <>
+                  {this.renderFilePath(name, path)}
+                  <FolderTree
+                    items={
+                      (data.repository
+                        .object as GetRepoObjectTreeInlineFragment).entries ||
+                      []
                     }
-                  })}
-                  // onItemPress={itemPath => {
-                  //   console.log(`${path || ""}/${itemPath}`);
-                  //   Router.pushRoute("repo", {
-                  //     branch: branch ? branch : "master",
-                  //     owner,
-                  //     // path: `${path || ""}${itemPath}`,
-                  //     path: [
-                  //       ...(path ? path.split("/") : []),
-                  //       ...itemPath.split("/")
-                  //     ],
-                  //     // : [...itemPath.split("/")],
-                  //     repo
-                  //   } as any);
-                  // }}
-                />
-              </>
-            );
-          }
+                    Link={Link}
+                    getLinkProps={itemPath => ({
+                      // passHref: true,
+                      route: "repo",
+                      params: {
+                        branch: branch ? branch : "master",
+                        owner,
+                        path: [
+                          ...(path ? path.split("/") : []),
+                          ...itemPath.split("/")
+                        ] as any,
+                        name
+                      }
+                    })}
+                    // onItemPress={itemPath => {
+                    //   console.log(`${path || ""}/${itemPath}`);
+                    //   Router.pushRoute("repo", {
+                    //     branch: branch ? branch : "master",
+                    //     owner,
+                    //     // path: `${path || ""}${itemPath}`,
+                    //     path: [
+                    //       ...(path ? path.split("/") : []),
+                    //       ...itemPath.split("/")
+                    //     ],
+                    //     // : [...itemPath.split("/")],
+                    //     repo
+                    //   } as any);
+                    // }}
+                  />
+                </>
+              );
+            }
 
-          return "something went wrong";
-        }}
-      </GetRepoObjectComponent>
+            return "something went wrong";
+          }}
+        </GetRepoObjectComponent>
+      </Layout>
     );
   }
 }

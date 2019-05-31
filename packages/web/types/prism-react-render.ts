@@ -1,1 +1,1 @@
-declare module "prism-react-render";
+declare module "prism-react-renderer";

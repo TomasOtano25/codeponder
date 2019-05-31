@@ -1,13 +1,21 @@
-import * as React from "react";
 import {
   FindCodeReviewQuestionsComponent,
   CreateCodeReviewQuestionComponent
 } from "./apollo-components";
 import { QuestionReply } from "./QuestionReply";
 import { useInputValue } from "../utils/useInputValue";
-import Highlight, { defaultProps } from "prism-react-renderer";
-import theme from "prism-react-renderer/themes/duotoneLight";
-// import "prismjs/themes/prism-solarizedlight.css";
+// import Highlight, { defaultProps } from "prism-react-renderer";
+// import theme from "prism-react-renderer/themes/duotoneDark";
+
+import Prism from "prismjs";
+import "prismjs/themes/prism-solarizedlight.css";
+import "prismjs/themes/prism.css";
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
+import "prismjs/plugins/line-numbers/prism-line-numbers.js";
+// import "prismjs/components/prism-json";
+import { useEffect } from "react";
+import { loadLanguage } from "../utils/loadLanguage";
+import { filenameToLang } from "../utils/filenameToLang";
 
 interface Props {
   code: string | null;
@@ -28,17 +36,28 @@ export const CodeFile: React.SFC<Props> = ({
   const [endingLineNum, endingLineNumChange] = useInputValue("0");
   const [text, textChange] = useInputValue("");
 
-  const extension = path ? path.split(".").pop() : "";
+  // const extension = path ? path.split(".").pop() : "";
+  const lang = path ? filenameToLang(path) : "";
+  useEffect(() => {
+    loadLanguage(lang)
+      .then(() => {
+        Prism.highlightAll();
+      })
+      .catch(() => {
+        Prism.highlightAll();
+      });
+    return () => {};
+  });
 
   return (
     <CreateCodeReviewQuestionComponent>
       {mutate => (
         <>
-          <Highlight
+          {/* <Highlight
             {...defaultProps}
-            code={code}
+            code={code!.trim()}
             language={extension}
-            theme={theme}
+            theme={undefined}
           >
             {({
               className,
@@ -47,35 +66,70 @@ export const CodeFile: React.SFC<Props> = ({
               getLineProps,
               getTokenProps
             }: any) => (
-              <pre className={className} style={style}>
+              <pre className={`${className}`} style={style}>
                 {tokens.map((line: string[], i: number) => (
                   <div {...getLineProps({ line, key: i })}>
-                    <div style={{ display: "flex" }}>
-                      <div
-                        style={{
-                          color: "rgba(27,31,35,.3)",
-                          padding: "0  10px",
-                          textAlign: "right",
-                          minWidth: "50px",
-                          lineHeight: "20px",
-                          cursor: "pointer",
-                          userSelect: "none",
-                          borderRight: "1px solid #999"
-                        }}
-                      >
-                        {i + 1}
-                      </div>
-                      {line.map((token, key) => (
-                        <span {...getTokenProps({ token, key })} />
-                      ))}
+                    <div
+                      style={{
+                        display: "inline-block",
+                        width: "2em",
+                        userSelect: "none",
+                        opacity: 0.3
+                      }}
+                    >
+                      {i + 1}
                     </div>
+                    {line.map((token, key) => (
+                      <span {...getTokenProps({ token, key })} />
+                    ))}
                   </div>
                 ))}
               </pre>
-            )}
-          </Highlight>
-          <pre>
-            <code className={`language-${extension}`}>{code}</code>
+            )} */}
+          {/* {({
+              className,
+              style,
+              tokens,
+              getLineProps,
+              getTokenProps
+            }: any) => (
+              <pre className={className} style={style}>
+                {tokens.map((line: string[], i: number) => (
+                  <div {...getLineProps({ line, key: i })}> */}
+          {/* <div style={{ display: "flex" }}> */}
+          {/* <div
+                      style={{
+                        // color: "rgba(27,31,35,.3)",
+                        color: "white",
+                        padding: "0  10px",
+                        textAlign: "right",
+                        minWidth: "50px",
+                        lineHeight: "20px",
+                        cursor: "pointer",
+                        userSelect: "none",
+                        display: "inline-block"
+                      }}
+                    >
+                      {i + 1}
+                    </div>
+                    {line.map((token, key) => (
+                      <span {...getTokenProps({ token, key })} />
+                    ))}
+                  </div>
+                  // </div>
+                ))}
+              </pre>
+                    )} */}
+          {/* </Highlight> */}
+          <pre className={`language-${lang} line-numbers`}>
+            <code>
+              {code}
+              {/* {(code || "").split("/n").map((token, i) => (
+                <div key={i} className="token line">
+                  {token}
+                </div>
+              ))} */}
+            </code>
           </pre>
           <form
             onSubmit={async e => {
